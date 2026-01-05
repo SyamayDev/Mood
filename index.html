@@ -224,7 +224,7 @@ async function loadMood(mood, btn) {
   info.innerHTML = "Mengambil lagu...";
 
   try {
-    const res = await fetch(`/.netlify/functions/youtube?mood=${mood}`);
+const res = await fetch(`https://my-music-proxy.netlify.app/.netlify/functions/youtube?mood=${mood}`);
     const data = await res.json();
 
     box.innerHTML = "";
