@@ -1,0 +1,3 @@
+[build]
+  functions = "functions"
+  publish = "."  # folder ini kosong, karena frontend tetap di GitHub Pages
