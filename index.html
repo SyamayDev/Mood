@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Mood → Music Recommender</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI;
+  background:#f6f7fb;
+  display:flex;
+  justify-content:center;
+  padding:32px;
+  transition:.4s;
+}
+
+.app{
+  width:100%;
+  max-width:460px;
+}
+
+/* HEADER */
+.header{
+  background:#fff;
+  padding:20px;
+  border-radius:24px;
+  box-shadow:0 12px 30px rgba(0,0,0,.08);
+}
+h1{
+  margin:0;
+  font-size:26px;
+}
+.subtitle{
+  font-size:14px;
+  color:#666;
+}
+
+/* MOODS */
+.moods{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin:22px 0;
+}
+.moods button{
+  padding:14px;
+  border:none;
+  border-radius:16px;
+  font-size:15px;
+  cursor:pointer;
+  background:#fff;
+  box-shadow:0 8px 18px rgba(0,0,0,.08);
+  transition:.25s;
+}
+.moods button.active{
+  background:#111;
+  color:#fff;
+}
+.moods button:hover{
+  transform:translateY(-4px);
+}
+
+/* INFO */
+.info{
+  font-size:13px;
+  color:#777;
+  margin-bottom:10px;
+}
+
+/* SONG */
+.song{
+  background:#fff;
+  padding:16px;
+  border-radius:18px;
+  margin-bottom:14px;
+  cursor:pointer;
+  box-shadow:0 6px 18px rgba(0,0,0,.08);
+  transition:.25s;
+  animation:fadeUp .35s ease;
+}
+.song:hover{
+  transform:translateY(-4px);
+  box-shadow:0 12px 26px rgba(0,0,0,.12);
+}
+.song-title{
+  font-weight:600;
+  margin-bottom:6px;
+}
+.song-channel{
+  font-size:13px;
+  color:#777;
+}
+
+/* LOADING */
+.skeleton{
+  height:60px;
+  border-radius:18px;
+  background:linear-gradient(
+    90deg,
+    #eee 25%,
+    #f5f5f5 37%,
+    #eee 63%
+  );
+  background-size:400% 100%;
+  animation:shimmer 1.4s infinite;
+  margin-bottom:12px;
+}
+
+/* PLAYER MODAL */
+.player{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.55);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  animation:fade .25s;
+}
+.player-box{
+  width:90%;
+  max-width:420px;
+  background:#000;
+  border-radius:20px;
+  overflow:hidden;
+  animation:zoom .3s forwards;
+  position:relative;
+}
+.player iframe{
+  width:100%;
+  height:240px;
+  border:0;
+}
+.close{
+  position:absolute;
+  top:10px;
+  right:10px;
+  background:#fff;
+  border:none;
+  border-radius:50%;
+  width:32px;
+  height:32px;
+  cursor:pointer;
+}
+
+/* FOOTER */
+.footer{
+  text-align:center;
+  font-size:12px;
+  color:#aaa;
+  margin-top:24px;
+}
+
+/* ANIMATIONS */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes shimmer{
+  0%{background-position:100% 0}
+  100%{background-position:-100% 0}
+}
+@keyframes zoom{
+  from{transform:scale(.85)}
+  to{transform:scale(1)}
+}
+@keyframes fade{
+  from{opacity:0}
+  to{opacity:1}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">
+    <h1>Mood → Music 🎧</h1>
+    <div class="subtitle">Pilih mood, preview lagu langsung</div>
+  </div>
+
+  <div class="moods">
+    <button onclick="loadMood('happy',this)">😄 Happy</button>
+    <button onclick="loadMood('sad',this)">😔 Sad</button>
+    <button onclick="loadMood('chill',this)">😌 Chill</button>
+    <button onclick="loadMood('focus',this)">🚀 Focus</button>
+    <button onclick="loadMood('angry',this)">😤 Angry</button>
+  </div>
+
+  <div class="info" id="info"></div>
+  <div id="result"></div>
+
+  <div class="footer">Powered by YouTube Data API</div>
+</div>
+
+<!-- PLAYER -->
+<div class="player" id="player">
+  <div class="player-box">
+    <button class="close" onclick="closePlayer()">✕</button>
+    <iframe id="ytPlayer" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  </div>
+</div>
+
+<script>
+const API_KEY = "AIzaSyD5MbUMg8d_kMq6lhrSRKuJ_O2JRRRjwnM";
+const MAX_RESULT = 6;
+
+const moods = {
+  happy:{query:"happy pop music",bg:"#fff7d6"},
+  sad:{query:"sad acoustic song",bg:"#eef1f7"},
+  chill:{query:"lofi chill music",bg:"#e8fff7"},
+  focus:{query:"coding focus music instrumental",bg:"#eef6ff"},
+  angry:{query:"rock metal music",bg:"#ffecec"}
+};
+
+async function loadMood(mood,btn){
+  document.querySelectorAll(".moods button")
+    .forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+
+  const box = document.getElementById("result");
+  const info = document.getElementById("info");
+  document.body.style.background = moods[mood].bg;
+
+  box.innerHTML = `
+    <div class="skeleton"></div>
+    <div class="skeleton"></div>
+    <div class="skeleton"></div>
+  `;
+  info.innerHTML = "Mengambil lagu...";
+
+  const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=${MAX_RESULT}&q=${encodeURIComponent(moods[mood].query)}&key=${API_KEY}`;
+
+  try{
+    const res = await fetch(url);
+    const data = await res.json();
+
+    box.innerHTML = "";
+    info.innerHTML = `Mood <b>${mood.toUpperCase()}</b> • ${data.items.length} lagu`;
+
+    data.items.forEach(item=>{
+      box.innerHTML += `
+        <div class="song" onclick="play('${item.id.videoId}')">
+          <div class="song-title">${item.snippet.title}</div>
+          <div class="song-channel">${item.snippet.channelTitle}</div>
+        </div>
+      `;
+    });
+  }catch{
+    box.innerHTML = "<div class='info'>Gagal mengambil lagu 😢</div>";
+  }
+}
+
+function play(id){
+  const player=document.getElementById("player");
+  document.getElementById("ytPlayer").src=
+    `https://www.youtube.com/embed/${id}?autoplay=1`;
+  player.style.display="flex";
+}
+
+function closePlayer(){
+  document.getElementById("player").style.display="none";
+  document.getElementById("ytPlayer").src="";
+}
+</script>
+
+</body>
+</html>
