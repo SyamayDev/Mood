@@ -202,6 +202,7 @@ h1{
 </div>
 
 <script>
+const API_KEY = "AIzaSyD5MbUMg8d_kMq6lhrSRKuJ_O2JRRRjwnM";
 const MAX_RESULT = 6;
 
 const moods = {
@@ -212,25 +213,32 @@ const moods = {
   angry:{query:"rock metal music",bg:"#ffecec"}
 };
 
-async function loadMood(mood, btn) {
-  document.querySelectorAll(".moods button").forEach(b => b.classList.remove("active"));
+async function loadMood(mood,btn){
+  document.querySelectorAll(".moods button")
+    .forEach(b=>b.classList.remove("active"));
   btn.classList.add("active");
 
   const box = document.getElementById("result");
   const info = document.getElementById("info");
-
   document.body.style.background = moods[mood].bg;
-  box.innerHTML = `<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>`;
+
+  box.innerHTML = `
+    <div class="skeleton"></div>
+    <div class="skeleton"></div>
+    <div class="skeleton"></div>
+  `;
   info.innerHTML = "Mengambil lagu...";
 
-  try {
-const res = await fetch(`https://my-music-proxy.netlify.app/.netlify/functions/youtube?mood=${mood}`);
+  const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=${MAX_RESULT}&q=${encodeURIComponent(moods[mood].query)}&key=${API_KEY}`;
+
+  try{
+    const res = await fetch(url);
     const data = await res.json();
 
     box.innerHTML = "";
     info.innerHTML = `Mood <b>${mood.toUpperCase()}</b> • ${data.items.length} lagu`;
 
-    data.items.forEach(item => {
+    data.items.forEach(item=>{
       box.innerHTML += `
         <div class="song" onclick="play('${item.id.videoId}')">
           <div class="song-title">${item.snippet.title}</div>
@@ -238,21 +246,21 @@ const res = await fetch(`https://my-music-proxy.netlify.app/.netlify/functions/y
         </div>
       `;
     });
-  } catch {
+  }catch{
     box.innerHTML = "<div class='info'>Gagal mengambil lagu 😢</div>";
   }
 }
 
-function play(id) {
-  const player = document.getElementById("player");
-  document.getElementById("ytPlayer").src =
+function play(id){
+  const player=document.getElementById("player");
+  document.getElementById("ytPlayer").src=
     `https://www.youtube.com/embed/${id}?autoplay=1`;
-  player.style.display = "flex";
+  player.style.display="flex";
 }
 
-function closePlayer() {
-  document.getElementById("player").style.display = "none";
-  document.getElementById("ytPlayer").src = "";
+function closePlayer(){
+  document.getElementById("player").style.display="none";
+  document.getElementById("ytPlayer").src="";
 }
 </script>
 
