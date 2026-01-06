@@ -2,202 +2,214 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mood → Music Recommender</title>
 <style>
 *{box-sizing:border-box}
 body{
   margin:0;
-  font-family:system-ui,-apple-system,Segoe UI;
-  background:#f0f4f8;
+  font-family:'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background:#f8fafc;
   display:flex;
   justify-content:center;
-  padding:20px;
-  transition:background 0.5s;
+  padding:15px;
+  transition: background 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  color: #1e293b;
 }
 .app{
   width:100%;
-  max-width:480px;
+  max-width:500px;
+  margin-top: 10px;
 }
+
 /* HEADER */
 .header{
   background:#fff;
-  padding:24px;
-  border-radius:28px;
-  box-shadow:0 16px 40px rgba(0,0,0,.08);
+  padding:30px 20px;
+  border-radius:32px;
+  box-shadow:0 10px 25px rgba(0,0,0,.04);
   text-align:center;
+  margin-bottom: 25px;
 }
 h1{
   margin:0;
-  font-size:28px;
-  color:#333;
-  letter-spacing:0.5px;
+  font-size:26px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #1e293b 0%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 .subtitle{
-  font-size:15px;
-  color:#555;
-  margin-top:6px;
+  font-size:14px;
+  color:#64748b;
+  margin-top:8px;
 }
 
-/* MOODS */
+/* MOODS GRID - Perbaikan Utama */
 .moods{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(100px,1fr));
-  gap:14px;
-  margin:24px 0;
+  /* Menggunakan 2 kolom di HP agar tombol lebih besar */
+  grid-template-columns: repeat(2, 1fr);
+  gap:12px;
+  margin-bottom:25px;
 }
+
 .moods button{
-  padding:16px;
+  padding:20px 10px;
   border:none;
-  border-radius:20px;
-  font-size:16px;
+  border-radius:24px;
+  font-size:15px;
   cursor:pointer;
   background:#fff;
-  box-shadow:0 8px 20px rgba(0,0,0,.06);
-  transition:.3s;
+  box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);
+  transition: all 0.2s ease;
   display:flex;
   flex-direction:column;
   align-items:center;
-  justify-content:center;
-}
-.moods button span{
-  margin-top:6px;
-  font-weight:500;
-}
-.moods button.active{
-  transform:scale(1.05);
-  background:linear-gradient(135deg,#6EE7B7,#3B82F6);
-  color:#fff;
-  box-shadow:0 12px 28px rgba(0,0,0,.12);
-}
-.moods button:hover{
-  transform:translateY(-4px) scale(1.03);
+  gap: 8px;
 }
 
-/* INFO */
+.moods button .emoji {
+  font-size: 28px;
+}
+
+.moods button span{
+  font-weight:600;
+  color: #475569;
+}
+
+.moods button:active {
+  transform: scale(0.95);
+}
+
+.moods button.active{
+  background:#3b82f6;
+  box-shadow:0 10px 15px -3px rgba(59, 130, 246, 0.4);
+}
+.moods button.active span { color: #fff; }
+
+/* SONG LIST */
 .info{
   font-size:14px;
-  color:#555;
-  margin-bottom:12px;
-  text-align:center;
-  min-height:20px;
+  font-weight: 600;
+  color:#64748b;
+  margin: 20px 0 12px;
+  text-align:left;
+  padding-left: 5px;
 }
 
-/* SONG */
 .song{
   background:#fff;
-  padding:18px;
+  padding:16px;
   border-radius:20px;
-  margin-bottom:14px;
+  margin-bottom:12px;
   cursor:pointer;
-  box-shadow:0 8px 22px rgba(0,0,0,.07);
-  transition:.25s;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow:0 4px 6px -1px rgba(0,0,0,0.05);
   animation:fadeUp .4s ease;
 }
-.song:hover{
-  transform:translateY(-4px);
-  box-shadow:0 16px 30px rgba(0,0,0,.12);
-}
-.song-title{
-  font-weight:600;
-  margin-bottom:6px;
-  font-size:16px;
-  color:#333;
-}
-.song-channel{
-  font-size:14px;
-  color:#777;
+
+.song-icon {
+    width: 45px;
+    height: 45px;
+    background: #f1f5f9;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
 }
 
-/* LOADING */
-.skeleton{
-  height:64px;
-  border-radius:20px;
-  background:linear-gradient(
-    90deg,
-    #eee 25%,
-    #f5f5f5 50%,
-    #eee 75%
-  );
-  background-size:400% 100%;
-  animation:shimmer 1.4s infinite;
-  margin-bottom:12px;
+.song-info { flex: 1; }
+
+.song-title{
+  font-weight:700;
+  font-size:15px;
+  color:#1e293b;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.song-channel{
+  font-size:13px;
+  color:#94a3b8;
+  margin-top: 2px;
 }
 
 /* PLAYER MODAL */
 .player{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.6);
+  background:rgba(15, 23, 42, 0.9);
+  backdrop-filter: blur(8px);
   display:none;
   align-items:center;
   justify-content:center;
-  animation:fade .25s;
-  z-index:100;
+  z-index:1000;
+  padding: 20px;
 }
 .player-box{
-  width:90%;
-  max-width:440px;
+  width:100%;
+  max-width:500px;
   background:#000;
-  border-radius:24px;
+  border-radius:30px;
   overflow:hidden;
-  animation:zoom .3s forwards;
   position:relative;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
 }
 .player iframe{
   width:100%;
-  height:260px;
+  aspect-ratio: 16/9;
   border:0;
+  display: block;
 }
 .close{
   position:absolute;
-  top:12px;
-  right:12px;
+  top:15px;
+  right:15px;
   background:#fff;
   border:none;
   border-radius:50%;
-  width:36px;
-  height:36px;
-  font-size:18px;
+  width:32px;
+  height:32px;
+  font-size:16px;
   cursor:pointer;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-weight:bold;
+  z-index: 10;
 }
 
-/* FOOTER */
-.footer{
-  text-align:center;
-  font-size:12px;
-  color:#999;
-  margin-top:28px;
+/* LOADING SKELETON */
+.skeleton{
+  height:77px;
+  border-radius:20px;
+  background: #eee;
+  background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
+  background-size: 200% 100%;
+  animation: 1.5s shine linear infinite;
+  margin-bottom:12px;
 }
 
-/* ANIMATIONS */
+@keyframes shine {
+  to { background-position-x: -200%; }
+}
+
 @keyframes fadeUp{
-  from{opacity:0;transform:translateY(12px)}
+  from{opacity:0;transform:translateY(15px)}
   to{opacity:1;transform:translateY(0)}
 }
-@keyframes shimmer{
-  0%{background-position:100% 0}
-  100%{background-position:-100% 0}
-}
-@keyframes zoom{
-  from{transform:scale(.85)}
-  to{transform:scale(1)}
-}
-@keyframes fade{
-  from{opacity:0}
-  to{opacity:1}
-}
 
-/* RESPONSIVE */
-@media(max-width:400px){
-  h1{font-size:24px;}
-  .moods button{padding:14px;font-size:14px;}
-  .song-title{font-size:15px;}
-  .song-channel{font-size:13px;}
+.footer{
+  text-align:center;
+  font-size:13px;
+  color:#94a3b8;
+  margin: 40px 0 20px;
 }
+.footer a { color: #3b82f6; text-decoration: none; font-weight: 600; }
 </style>
 </head>
 <body>
@@ -205,18 +217,34 @@ h1{
 <div class="app">
   <div class="header">
     <h1>Mood → Music 🎧</h1>
-    <div class="subtitle">Pilih mood, preview lagu langsung</div>
+    <div class="subtitle">Pilih mood-mu, kami putarkan lagunya</div>
   </div>
 
   <div class="moods">
-    <button onclick="loadMood('happy',this)">😄<span>Happy</span></button>
-    <button onclick="loadMood('sad',this)">😔<span>Sad</span></button>
-    <button onclick="loadMood('chill',this)">😌<span>Chill</span></button>
-    <button onclick="loadMood('focus',this)">🚀<span>Focus</span></button>
-    <button onclick="loadMood('angry',this)">😤<span>Angry</span></button>
-    <button onclick="loadMood('romantic',this)">💖<span>Romantic</span></button>
-    <button onclick="loadMood('party',this)">🎉<span>Party</span></button>
-    <button onclick="loadMood('sleep',this)">😴<span>Sleep</span></button>
+    <button onclick="loadMood('happy',this)">
+        <span class="emoji">😄</span><span>Happy</span>
+    </button>
+    <button onclick="loadMood('sad',this)">
+        <span class="emoji">😔</span><span>Sad</span>
+    </button>
+    <button onclick="loadMood('chill',this)">
+        <span class="emoji">😌</span><span>Chill</span>
+    </button>
+    <button onclick="loadMood('focus',this)">
+        <span class="emoji">🚀</span><span>Focus</span>
+    </button>
+    <button onclick="loadMood('angry',this)">
+        <span class="emoji">😤</span><span>Angry</span>
+    </button>
+    <button onclick="loadMood('romantic',this)">
+        <span class="emoji">💖</span><span>Romantic</span>
+    </button>
+    <button onclick="loadMood('party',this)">
+        <span class="emoji">🎉</span><span>Party</span>
+    </button>
+    <button onclick="loadMood('sleep',this)">
+        <span class="emoji">😴</span><span>Sleep</span>
+    </button>
   </div>
 
   <div class="info" id="info"></div>
@@ -225,7 +253,6 @@ h1{
   <div class="footer">Created by <a href="https://github.com/SyamayDev">SyamayDev</a></div>
 </div>
 
-<!-- PLAYER -->
 <div class="player" id="player">
   <div class="player-box">
     <button class="close" onclick="closePlayer()">✕</button>
@@ -238,14 +265,14 @@ const API_KEY = "AIzaSyD5MbUMg8d_kMq6lhrSRKuJ_O2JRRRjwnM";
 const MAX_RESULT = 6;
 
 const moods = {
-  happy:{query:"happy pop music",bg:"#fff7d6"},
-  sad:{query:"sad acoustic song",bg:"#eef1f7"},
-  chill:{query:"lofi chill music",bg:"#e8fff7"},
-  focus:{query:"coding focus music instrumental",bg:"#eef6ff"},
-  angry:{query:"rock metal music",bg:"#ffecec"},
-  romantic:{query:"romantic love songs",bg:"#ffe6f0"},
-  party:{query:"party dance music",bg:"#fff3e6"},
-  sleep:{query:"sleep relaxing music",bg:"#eaeaff"}
+  happy:{query:"happy pop music upbeat",bg:"#fefce8"},
+  sad:{query:"sad emotional acoustic song",bg:"#f1f5f9"},
+  chill:{query:"lofi chill hip hop beats",bg:"#f0fdf4"},
+  focus:{query:"deep focus music for study",bg:"#eff6ff"},
+  angry:{query:"heavy rock metal intense",bg:"#fef2f2"},
+  romantic:{query:"best romantic love songs",bg:"#fff1f2"},
+  party:{query:"party dance club hits",bg:"#fff7ed"},
+  sleep:{query:"deep sleep relaxing rain music",bg:"#f5f3ff"}
 };
 
 async function loadMood(mood,btn){
@@ -257,32 +284,30 @@ async function loadMood(mood,btn){
   const info = document.getElementById("info");
   document.body.style.background = moods[mood].bg;
 
-  box.innerHTML = `
-    <div class="skeleton"></div>
-    <div class="skeleton"></div>
-    <div class="skeleton"></div>
-  `;
-  info.innerHTML = "Mengambil lagu...";
+  box.innerHTML = `<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>`;
+  info.innerHTML = "Sedang mencari lagu...";
 
   const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=${MAX_RESULT}&q=${encodeURIComponent(moods[mood].query)}&key=${API_KEY}`;
 
   try{
     const res = await fetch(url);
     const data = await res.json();
-
     box.innerHTML = "";
-    info.innerHTML = `Mood <b>${mood.toUpperCase()}</b> • ${data.items.length} lagu`;
+    info.innerHTML = `Mood: ${mood.toUpperCase()}`;
 
     data.items.forEach(item=>{
       box.innerHTML += `
         <div class="song" onclick="play('${item.id.videoId}')">
-          <div class="song-title">${item.snippet.title}</div>
-          <div class="song-channel">${item.snippet.channelTitle}</div>
+          <div class="song-icon">🎵</div>
+          <div class="song-info">
+            <div class="song-title">${item.snippet.title}</div>
+            <div class="song-channel">${item.snippet.channelTitle}</div>
+          </div>
         </div>
       `;
     });
-  }catch{
-    box.innerHTML = "<div class='info'>Gagal mengambil lagu 😢</div>";
+  } catch(e) {
+    box.innerHTML = "<div style='text-align:center;padding:20px;'>Gagal mengambil lagu. Periksa API Key Anda.</div>";
   }
 }
 
