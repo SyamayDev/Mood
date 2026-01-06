@@ -265,15 +265,16 @@ const API_KEY = "AIzaSyD5MbUMg8d_kMq6lhrSRKuJ_O2JRRRjwnM";
 const MAX_RESULT = 6;
 
 const moods = {
-  happy:{query:"happy pop music upbeat",bg:"#fefce8"},
-  sad:{query:"sad emotional acoustic song",bg:"#f1f5f9"},
-  chill:{query:"lofi chill hip hop beats",bg:"#f0fdf4"},
-  focus:{query:"deep focus music for study",bg:"#eff6ff"},
-  angry:{query:"heavy rock metal intense",bg:"#fef2f2"},
-  romantic:{query:"best romantic love songs",bg:"#fff1f2"},
-  party:{query:"party dance club hits",bg:"#fff7ed"},
-  sleep:{query:"deep sleep relaxing rain music",bg:"#f5f3ff"}
+  happy: {query:"Top happy pop hits 2025, Justin Bieber, Dua Lipa, Taylor Swift", bg:"#fefce8"},
+  sad: {query:"Popular sad emotional songs, Adele, Sam Smith, Lewis Capaldi", bg:"#f1f5f9"},
+  chill: {query:"Chill lofi hip hop popular beats, Joji, Khalid, Billie Eilish", bg:"#f0fdf4"},
+  focus: {query:"Focus study instrumental music, relaxing piano, lo-fi chill", bg:"#eff6ff"},
+  angry: {query:"Popular rock and metal hits, Metallica, Imagine Dragons, Linkin Park", bg:"#fef2f2"},
+  romantic: {query:"Romantic love songs, Ed Sheeran Perfect, John Legend All of Me, Adele", bg:"#fff1f2"},
+  party: {query:"Top party dance hits, Dua Lipa, The Weeknd, Calvin Harris", bg:"#fff7ed"},
+  sleep: {query:"Relaxing sleep music, soft piano, rain sounds, ambient calm", bg:"#f5f3ff"}
 };
+
 
 async function loadMood(mood,btn){
   document.querySelectorAll(".moods button")
